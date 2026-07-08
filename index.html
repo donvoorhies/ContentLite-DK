@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Content | Lite] - CRUD Projekt</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f5;
+            --text-color: #18181b;
+            --accent-color: #27272a;
+            --border-color: #d4d4d8;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #09090b;
+                --text-color: #fafafa;
+                --accent-color: #e4e4e7;
+                --border-color: #27272a;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 4rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .logo {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo-part {
+            color: #71717a;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p.lead {
+            font-size: 1.2rem;
+            color: #a1a1aa;
+            margin-bottom: 2rem;
+        }
+
+        .crud-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .crud-card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            background: rgba(128, 128, 128, 0.05);
+        }
+
+        .crud-card h3 {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .cta-section {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: "Courier New", Courier, monospace;
+            border: 2px solid var(--text-color);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: transparent;
+            color: var(--text-color);
+        }
+
+        footer {
+            margin-top: 4rem;
+            font-size: 0.875rem;
+            color: #71717a;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">[Content <span class="logo-part">|</span> Lite]</div>
+    </header>
+
+    <main>
+        <section>
+            <h1>Maksimal datakontrol. Minimalt overhead.</h1>
+            <p class="lead">En strømlinet CRUD-applikation bygget til hastighed, enkelhed og nul distraktioner. Datahåndtering skåret helt ind til benet.</p>
+        </section>
+
+        <section class="crud-grid">
+            <div class="crud-card">
+                <h3>[ Create ]</h3>
+                <p>Opret nye datapunkter øjeblikkeligt med en letvægts og optimeret input-pipeline. Ingen overflødige felter.</p>
+            </div>
+            <div class="crud-card">
+                <h3>[ Read ]</h3>
+                <p>Hent og vis data med hurtige svartider. En fuldstændig ren brugerflade sikrer maksimal læsbarhed.</p>
+            </div>
+            <div class="crud-card">
+                <h3>[ Update ]</h3>
+                <p>Opdater eksisterende indhold løbende. Realtidshåndtering af applikationens state sikrer, at dine data altid er præcise.</p>
+            </div>
+            <div class="crud-card">
+                <h3>[ Delete ]</h3>
+                <p>Fjern forældede registreringer permanent og sikkert. Rent bord, når du har brug for det.</p>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2>Tekniske Detaljer</h2>
+            <p>Udviklet som et proof-of-concept for effektiv og hurtig datahåndtering. Du er velkommen til at udforske kildekoden eller selv se applikationen i aktion.</p>
+            <br>
+            <a href="https://github.com/donvoorhies/ContentLite-DK" class="btn">Se kildekode</a>
+            <a href="https://github.com/donvoorhies/ContentLite-DK/blob/master/README.md" class="btn">RTFM (README)</a>
+            <a href="#" class="btn" style="background: transparent; color: var(--text-color);" alt="Kommer snart">(Demo kommer snart)</a>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2026 // Don Voorhies [Content | Lite] Projektet
+    </footer>
+
+</body>
+</html>
