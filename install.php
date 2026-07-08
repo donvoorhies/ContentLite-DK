@@ -287,3 +287,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+<?php// Create lock file to permanently block install.php via .htaccess
+file_put_contents(__DIR__ . '/install.lock', date('Y-m-d H:i:s'));
+?>
