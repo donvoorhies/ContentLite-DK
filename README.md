@@ -16,3 +16,5 @@ Letvægts PHP-baseret indholdsstyring med nyheder, galleri, adminpanel og først
 3. Udfyld databaseoplysninger og eventuelt tabel-prefix.
 4. `install.php` låses automatisk efter installation.
 5. Ret CSS-selektorenes parametre selv efter krav/behov i.f.m. layout
+
+(Udgivet under en GPL-2.0+ licens)
