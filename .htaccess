@@ -1,10 +1,202 @@
-#<Files "install.php">
-	<IfModule mod_authz_core.c>
-		Require all denied
-	</IfModule>
-	<IfModule !mod_authz_core.c>
-		Order allow,deny
-		Deny from all
-	</IfModule>
-#</Files>
+# .htaccess — ContentLite
+# Kræver Apache 2.4 + mod_rewrite
+# ══════════════════════════════════════════════════════════════════════════════
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 1. BESKYTTELSE AF FØLSOMME FILER
+#    Bloker direkte HTTP-adgang til filer der aldrig må tilgås via browser.
+#    Returnerer 403 Forbidden (ikke 404, så angriberen ved filen eksisterer).
+# ══════════════════════════════════════════════════════════════════════════════
+
+# config.php, _header.php, _footer.php og alle filer der starter med _
+# må kun inkluderes af PHP internt — aldrig hentes direkte.
+<FilesMatch "^(config\.php|_.*\.php)$">
+    Require all denied
+</FilesMatch>
+
+# schema.sql og install.php: bloker adgang efter installation.
+# Slet helst install.php fra serveren; denne regel er en sikkerhedsnet.
+<FilesMatch "^(schema\.sql|install\.php)$">
+    Require all denied
+</FilesMatch>
+
+# Generel beskyttelse: bloker backup-, log-, konfig- og editorfiler
+<FilesMatch "\.(sql|log|bak|bak2|orig|dist|ini|env|sh|swp|yml|yaml|lock)$">
+    Require all denied
+</FilesMatch>
+
+# Skjulte filer (punktfiler), undtagen .htaccess selv
+<FilesMatch "^\.(?!htaccess)">
+    Require all denied
+</FilesMatch>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2. UPLOAD-MAPPE: BLOKER PHP-UDFØRELSE
+#    Forhindrer at en angriber uploader en .php-fil forklædt som billede
+#    og derefter udfører den via browseren.
+#    Placer denne blok i /uploads/.htaccess i stedet, hvis du foretrækker det.
+# ══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloker PHP-udførelse i uploads-mappen
+    RewriteCond %{REQUEST_URI} ^/uploads/ [NC]
+    RewriteRule \.php$ - [F,L]
+</IfModule>
+
+# Alternativt (virker uden mod_rewrite, men kræver en separat
+# /uploads/.htaccess-fil med denne indhold):
+#
+#   <FilesMatch "\.php[0-9]?$">
+#       Require all denied
+#   </FilesMatch>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. SIKKERHEDSHEADERE
+#    Sendes med alle svar fra Apache.
+# ══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_headers.c>
+    # Forhindrer browseren i at "sniffe" MIME-type
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Clickjacking-beskyttelse: siden må kun vises i iframe fra samme oprindelse
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Slår ældre browsers XSS-filter til (harmløst på moderne browsere)
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Referrer: send kun oprindelse (ikke fuld URL) til eksterne sider
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # HSTS: tving HTTPS i 1 år (aktiver KUN når HTTPS er konfigureret!)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Content Security Policy — tilpas til dit sites behov.
+    # Nedenstående er en rimelig udgangspunkt for ContentLite:
+    #   - default-src 'self'          : kun egne ressourcer som standard
+    #   - script-src: tillad TinyMCE fra jsDelivr CDN
+    #   - style-src:  tillad Google Fonts og jsDelivr
+    #   - font-src:   tillad Google Fonts
+    #   - img-src:    tillad egne billeder + data: (TinyMCE base64-thumbnails)
+    Header always set Content-Security-Policy "\
+default-src 'self'; \
+script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; \
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; \
+font-src 'self' https://fonts.gstatic.com; \
+img-src 'self' data:; \
+connect-src 'self'; \
+frame-ancestors 'self'"
+
+    # Skjul Apache-versionsnummer i fejlsvar
+    Header always unset X-Powered-By
+    ServerSignature Off
+</IfModule>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 4. HTTPS-OMDIRIGERING
+#    Fjern kommentaren når dit SSL-certifikat er aktivt.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} !=on
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# </IfModule>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. WWW → IKKE-WWW (eller omvendt)
+#    Vælg ÉN af de to blokke — aldrig begge.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Variant A: fjern www (www.eksempel.dk → eksempel.dk) ──
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+#     RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+# </IfModule>
+
+# ── Variant B: tilføj www (eksempel.dk → www.eksempel.dk) ──
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTP_HOST} !^www\. [NC]
+#     RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# </IfModule>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. YDELSE — KOMPRIMERING (GZIP)
+# ══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_deflate.c>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE \
+            text/html \
+            text/css \
+            text/javascript \
+            text/xml \
+            text/plain \
+            application/javascript \
+            application/json \
+            application/xml \
+            image/svg+xml
+    </IfModule>
+</IfModule>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 7. YDELSE — BROWSER-CACHE (Expires-headere)
+# ══════════════════════════════════════════════════════════════════════════════
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # HTML: ingen cache (indholdet ændrer sig)
+    ExpiresByType text/html                 "access plus 0 seconds"
+
+    # CSS og JavaScript: 1 uge
+    ExpiresByType text/css                  "access plus 1 week"
+    ExpiresByType application/javascript    "access plus 1 week"
+
+    # Billeder: 1 måned
+    ExpiresByType image/jpeg                "access plus 1 month"
+    ExpiresByType image/png                 "access plus 1 month"
+    ExpiresByType image/gif                 "access plus 1 month"
+    ExpiresByType image/webp                "access plus 1 month"
+    ExpiresByType image/svg+xml             "access plus 1 month"
+    ExpiresByType image/x-icon              "access plus 1 year"
+
+    # Skrifttyper: 1 år
+    ExpiresByType font/woff                 "access plus 1 year"
+    ExpiresByType font/woff2                "access plus 1 year"
+</IfModule>
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 8. BRUGERDEFINEREDE FEJLSIDER
+#    Opret disse filer i roden af dit site.
+# ══════════════════════════════════════════════════════════════════════════════
+
+ErrorDocument 403 /403.html
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 9. MAPPELISTEVISNING — ALTID SLÅET FRA
+# ══════════════════════════════════════════════════════════════════════════════
+
+Options -Indexes
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 10. TEGNSÆT
+# ══════════════════════════════════════════════════════════════════════════════
+
+AddDefaultCharset UTF-8
