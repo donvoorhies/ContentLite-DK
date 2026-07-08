@@ -283,10 +283,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
 
-        <p class="hint">Efter vellykket installation: slet eller beskyt <code>install.php</code>.</p>
+        <?php if ($messages && !$errors): ?>
+<p style="margin-top:1.5rem;padding:1rem;background:#fef2f2;border:2px solid #dc2626;border-radius:6px;color:#b91c1c;font-weight:600;">
+    ⚠️ Installationen er gennemført. <code>install.php</code> er nu låst via
+    <code>install.lock</code>. For maksimal sikkerhed, <strong>slet begge filer
+    fra serveren</strong>.
+</p>
+<?php else: ?>
+<p class="hint">Slet eller beskyt <code>install.php</code> efter en vellykket installation.</p>
+<?php endif; ?>
     </div>
 </body>
 </html>
-<?php// Create lock file to permanently block install.php via .htaccess
+<?php
+// Lås installeren — blokerer yderligere adgang via .htaccess
 file_put_contents(__DIR__ . '/install.lock', date('Y-m-d H:i:s'));
+$messages[] = 'OK: install.lock oprettet — installeren er nu blokeret.';
 ?>
