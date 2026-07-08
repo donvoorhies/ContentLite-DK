@@ -1,0 +1,24 @@
+# uploads/.htaccess
+# ══════════════════════════════════════════════════════════════════════════════
+# Denne fil placeres i /uploads/ og forhindrer at uploadede filer
+# kan udføres som PHP — selv hvis en angriber uploader en .php-fil
+# forklædt som et billede.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Bloker al PHP-udførelse (alle PHP-varianter)
+<FilesMatch "\.php[0-9]?$">
+    Require all denied
+</FilesMatch>
+
+# Tillad kun billedformater og ingen andre filtyper
+<FilesMatch "(?i)\.(jpe?g|png|gif|webp)$">
+    Require all granted
+</FilesMatch>
+
+# Afvis alt andet
+<FilesMatch "^(?!.*\.(jpe?g|png|gif|webp)$)">
+    Require all denied
+</FilesMatch>
+
+# Slå mappelistevisning fra
+Options -Indexes
