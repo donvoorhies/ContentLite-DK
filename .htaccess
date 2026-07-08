@@ -17,9 +17,17 @@
 
 # schema.sql og install.php: bloker adgang efter installation.
 # Slet helst install.php fra serveren; denne regel er en sikkerhedsnet.
-<FilesMatch "^(schema\.sql|install\.php)$">
+# schema.sql: never accessible via browser
+<FilesMatch "^schema\.sql$">
     Require all denied
 </FilesMatch>
+
+# install.php: tilgængelig indtil install.lock eksisterer, så blokeres install-filen permanent!
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{DOCUMENT_ROOT}/install.lock -f
+    RewriteRule ^install\.php$ - [F,L]
+</IfModule>
 
 # Generel beskyttelse: bloker backup-, log-, konfig- og editorfiler
 <FilesMatch "\.(sql|log|bak|bak2|orig|dist|ini|env|sh|swp|yml|yaml|lock)$">
